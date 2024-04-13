@@ -11,6 +11,11 @@ type Pokemon struct {
 	Type2     string `json:"type2"`
 	Evolution string `json:"evolution"`
 }
+type User struct {
+	Username  string    `json:"username" bson:"username"`
+	Password  string    `json:"password" bson:"password"`
+	Inventory []Pokemon `json:"inventory" bson:"inventory"` // Array of Pokémon IDs
+}
 
 func ReadPokemonFromCSV(filename string) ([]Pokemon, error) {
 	var pokedex []Pokemon
