@@ -51,12 +51,10 @@ pokemon_names = ['Abra', 'Aerodactyl', 'Alakazam', 'Arbok',
                  'Vileplume', 'Voltorb', 'Vulpix', 'Wartortle', 'Weedle', 
                  'Weepinbell', 'Weezing', 'Wigglytuff', 'Zapdos', 'Zubat']
 
-# Get the top 3 predictions
-top_3_indices = np.argsort(predictions[0])[-3:][::-1]
-top_3_probabilities = [predictions[0][i] for i in top_3_indices]
-top_3_pokemon = [pokemon_names[i] for i in top_3_indices]
+# Get the top predictions
+top_index = np.argmax(predictions[0])  # Get the index of the maximum probability
+top_probability = predictions[0][top_index]  # Get the probability of the top prediction
+top_pokemon = pokemon_names[top_index]  # Get the name of the top predicted Pokémon
 
 # Print the results
-print("Top 3 Predicted Pokemon:")
-for i in range(3):
-    print(f"{i+1}. Pokemon: {top_3_pokemon[i]}, Probability: {top_3_probabilities[i]:.2f}")
+print(top_pokemon)
