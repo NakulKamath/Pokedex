@@ -139,7 +139,12 @@ func RegisterUser(w http.ResponseWriter, r *http.Request, client *mongo.Client) 
 		return
 	}
 
-	// Insert new user
+	// If inventory is nil, initialize it as an empty array
+	if user.Inventory == nil {
+		user.Inventory = []models.Pokemon{}
+	}
+
+	// Insert new user with inventory
 	_, err = collection.InsertOne(ctx, user)
 	if err != nil {
 		http.Error(w, "Failed to register user", http.StatusInternalServerError)
