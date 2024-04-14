@@ -44,6 +44,9 @@ func main() {
 	pokedexRouter.HandleFunc("/remove/{username}", func(w http.ResponseWriter, r *http.Request) {
 		handlers.RemoveFromInventory(w, r, client)
 	}).Methods("DELETE")
+	pokedexRouter.HandleFunc("/display/{username}", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetUserInventory(w, r, client)
+	}).Methods("GET")
 
 	log.Println("Server started on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
