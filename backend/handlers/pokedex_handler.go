@@ -238,3 +238,29 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+func GetUserInventory(w http.ResponseWriter, r *http.Request, client *mongo.Client) {
+	// Get username from request parameters
+	vars := mux.Vars(r)
+	username := vars["username"]
+
+	// Access the "users" collection
+	collection := client.Database("pokedex").Collection("users")
+
+	// Find the user by username
+	var user models.User
+	err := collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	// Construct JSON response
+	jsonResponse := map[string]interface{}{
+		"username":  user.Username,
+		"inventory": user.Inventory,
+	}
+
+	// Encode JSON response and write to response writer
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(jsonResponse)
+}
