@@ -9,11 +9,11 @@ import numpy as np
 # Load the trained model
 model = tf.keras.models.load_model(
     "C:\\Users\\prana\\OneDrive\\Documents\\college\\pokedex\\model\\modelv4.h5"
-)
+)#add your file path here
 
 # Define the target image size
 target_size = (224, 224)
-image = "C:\\Users\\prana\\OneDrive\\Documents\\college\\pokedex\\model\\test.jpg"
+image = "C:\\Users\\prana\\OneDrive\\Documents\\college\\pokedex\\model\\test.jpg" #add your file path here
 
 # Load and preprocess the input image
 input_image = load_img(image, target_size=target_size)
