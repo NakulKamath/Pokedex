@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/PranavKurundodi/pokedex/backend/handlers"
+	"github.com/gorilla/handlers"
+
+	"github.com/PranavKurundodi/pokedex/backend/handler"
 	"github.com/PranavKurundodi/pokedex/backend/models"
 	"github.com/gorilla/mux"
 )
@@ -18,39 +20,44 @@ func main() {
 		log.Fatalf("Failed to read pokemon data from CSV: %v", err)
 	}
 
-	handlers.SetPokedex(pokedex)
+	handler.SetPokedex(pokedex)
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/pokemon", handlers.GetPokemon).Methods("GET")
-	r.HandleFunc("/pokemon/byName", handlers.GetPokemonByName).Methods("GET")
-	r.HandleFunc("/pokemon/model", handlers.PokemonProbModel).Methods("GET")
+	r.HandleFunc("/pokemon", handler.GetPokemon).Methods("GET")
+	r.HandleFunc("/pokemon/byName", handler.GetPokemonByName).Methods("GET")
+	r.HandleFunc("/pokemon/model", handler.PokemonProbModel).Methods("GET")
 
-	client, err := handlers.NewMongoClient()
+	client, err := handler.NewMongoClient()
 	if err != nil {
 		log.Fatal("Failed to connect to MongoDB:", err)
 	}
 
 	r.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
-		handlers.RegisterUser(w, r, client)
+		handler.RegisterUser(w, r, client)
 	}).Methods("POST")
 
 	r.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-		handlers.LoginUser(w, r, client)
+		handler.LoginUser(w, r, client)
 	}).Methods("POST")
 
 	pokedexRouter := r.PathPrefix("/pokedex").Subrouter()
-	pokedexRouter.Use(handlers.AuthMiddleware)
+	pokedexRouter.Use(handler.AuthMiddleware)
 	pokedexRouter.HandleFunc("/add/{username}", func(w http.ResponseWriter, r *http.Request) {
-		handlers.AddToInventory(w, r, client)
+		handler.AddToInventory(w, r, client)
 	}).Methods("POST")
 	pokedexRouter.HandleFunc("/remove/{username}", func(w http.ResponseWriter, r *http.Request) {
-		handlers.RemoveFromInventory(w, r, client)
+		handler.RemoveFromInventory(w, r, client)
 	}).Methods("DELETE")
 	pokedexRouter.HandleFunc("/display/{username}", func(w http.ResponseWriter, r *http.Request) {
-		handlers.GetUserInventory(w, r, client)
+		handler.GetUserInventory(w, r, client)
 	}).Methods("GET")
 	r.HandleFunc("/upload", uploadHandler).Methods("POST")
+
+	headers := handlers.AllowedHeaders([]string{"Content-Type", "Authorization"})
+	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
+	origins := handlers.AllowedOrigins([]string{"http://localhost:8000"})
+	r.Use(handlers.CORS(headers, methods, origins))
 
 	log.Println("Server started on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
@@ -88,4 +95,3 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("File uploaded successfully"))
 }
-
