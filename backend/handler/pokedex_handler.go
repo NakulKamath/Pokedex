@@ -5,8 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -264,4 +266,37 @@ func GetUserInventory(w http.ResponseWriter, r *http.Request, client *mongo.Clie
 	// Encode JSON response and write to response writer
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(jsonResponse)
+}
+func UploadHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse the multipart form data
+	err := r.ParseMultipartForm(10 << 20) // 10 MB limit
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error: %s", err.Error()), http.StatusBadRequest)
+		return
+	}
+
+	file, _, err := r.FormFile("image")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error: %s", err.Error()), http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// Create a new file named "model/test.jpg"
+	out, err := os.Create("C:\\Users\\prana\\OneDrive\\Documents\\college\\pokedex\\model\\test.jpg")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	defer out.Close()
+
+	// Copy the uploaded file to the new file
+	_, err = io.Copy(out, file)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("File uploaded successfully"))
 }
