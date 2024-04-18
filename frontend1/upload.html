@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Image</title>
+  </head>
+  <body>
+    <input type="file" id="imageInput" />
+    <button id="uploadbutton">Upload</button>
+    <button onclick="goToModelDisplay()">Model Display</button>
+
+    <script>
+      function uploadImage() {
+        const fileInput = document.getElementById("imageInput");
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append(
+          "image",
+          file,
+          "C:\\Users\\prana\\OneDrive\\Documents\\college\\pokedex\\model\\test.jpg"
+        ); // Name the file as 'test.jpg'
+
+        fetch("http://localhost:8080/upload", {
+          // Change the URL if the server is running on a different address or port
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to upload image");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data); // Print the JSON response in the console
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+      function searchPokemon() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        if (searchTerm === "") {
+          // If search bar is empty, fetch all Pokémon data
+          fetchPokemonData();
+        } else {
+          // Otherwise, search Pokémon data by name
+          fetch(`http://localhost:8080/pokemon/byName?name=${searchTerm}`)
+            .then((response) => response.json())
+            .then((data) => {
+              // Clear existing list
+              pokemonList.innerHTML = "";
+              // Create list item for the found Pokémon
+              const listItem = document.createElement("li");
+              listItem.className = "pokemon-item";
+              const textContent = `Name: ${data.name}, Type 1: ${data.type1}, Type 2: ${data.type2}, Evolution: ${data.evolution}`;
+              listItem.textContent = textContent;
+              pokemonList.appendChild(listItem);
+            })
+            .catch((error) => console.error("Error searching Pokémon:", error));
+        }
+      }
+      function goToModelDisplay() {
+        window.location.href = "modeldisplay.html"; // Change the URL to the register page
+      }
+      uploadbutton.addEventListener("click", uploadImage);
+    </script>
+  </body>
+</html>

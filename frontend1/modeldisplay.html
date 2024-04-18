@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Model Display</title>
+    <style>
+      /* Add your CSS styles here */
+    </style>
+  </head>
+  <body>
+    <h3>The pokemon details are:</h3>
+    <div id="pokemon-details"></div>
+
+    <script>
+      // Fetch JSON data from the server
+      fetch("http://localhost:8080/pokemon/model")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch data");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          // Display the JSON data
+          displayPokemon(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+          // Display an error message
+          document.getElementById("pokemon-details").innerText =
+            "Failed to fetch data";
+        });
+
+      function displayPokemon(data) {
+        // Create HTML elements to display the JSON data
+        const pokemonDetails = document.getElementById("pokemon-details");
+        pokemonDetails.innerHTML = "<h2>Pokemon Details</h2>";
+
+        // Check if the data is an object or an array
+        if (typeof data === "object" && !Array.isArray(data)) {
+          // Single Pokemon object
+          const pokemonElement = document.createElement("div");
+          pokemonElement.innerHTML = `
+          <p><strong>Name:</strong> ${data.name}</p>
+          <p><strong>Type 1:</strong> ${data.type1}</p>
+          <p><strong>Type 2:</strong> ${data.type2}</p>
+          <p><strong>Evolution:</strong> ${data.evolution}</p>
+        `;
+          pokemonDetails.appendChild(pokemonElement);
+        } else if (Array.isArray(data)) {
+          // Array of Pokemon objects (shouldn't happen for this endpoint)
+          console.error(
+            "Received an array of Pokemon objects, expected a single object"
+          );
+          document.getElementById("pokemon-details").innerText =
+            "Unexpected data format";
+        } else {
+          // Unexpected data format
+          console.error("Unexpected data format:", data);
+          document.getElementById("pokemon-details").innerText =
+            "Unexpected data format";
+        }
+      }
+    </script>
+  </body>
+</html>
